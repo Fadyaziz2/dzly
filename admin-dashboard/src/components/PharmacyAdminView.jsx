@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../api/api';
+import api, { resolveMediaUrl } from '../api/api';
 import {
   Pill,
   Search,
@@ -527,7 +527,7 @@ export default function PharmacyAdminView() {
             </div>
             <div className="p-4 text-center">
               <img
-                src={prescriptionModalUrl}
+                src={resolveMediaUrl(prescriptionModalUrl)}
                 alt="الروشتة الطبية"
                 className="max-h-[70vh] w-auto mx-auto rounded-xl object-contain border border-slate-200"
               />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../api/api';
+import api, { resolveMediaUrl } from '../api/api';
 import {
   Image as ImageIcon,
   Upload,
@@ -228,7 +228,7 @@ export default function BannersView() {
               <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 aspect-[16/8] shadow-inner group">
                 {settings.headerBannerUrl ? (
                   <img
-                    src={settings.headerBannerUrl}
+                    src={resolveMediaUrl(settings.headerBannerUrl)}
                     alt="Header Preview"
                     className="w-full h-full object-cover"
                     onError={(e) => {
@@ -321,7 +321,7 @@ export default function BannersView() {
               <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 aspect-[16/7] shadow-md flex items-center justify-between p-4 text-white">
                 {settings.homeAdBannerUrl ? (
                   <img
-                    src={settings.homeAdBannerUrl}
+                    src={resolveMediaUrl(settings.homeAdBannerUrl)}
                     alt="Home Ad Preview"
                     className="absolute inset-0 w-full h-full object-cover"
                     onError={(e) => {
@@ -474,7 +474,7 @@ export default function BannersView() {
                     <div className="relative aspect-[16/10] bg-slate-900 border-b border-slate-100 overflow-hidden group">
                       {cat.imageUrl ? (
                         <img
-                          src={cat.imageUrl}
+                          src={resolveMediaUrl(cat.imageUrl)}
                           alt={cat.title}
                           className="w-full h-full object-cover"
                           onError={(e) => {
@@ -634,7 +634,7 @@ export default function BannersView() {
                   <div className="relative rounded-xl overflow-hidden aspect-[16/6] bg-slate-900 border border-slate-200">
                     {cat.adBannerUrl ? (
                       <img
-                        src={cat.adBannerUrl}
+                        src={resolveMediaUrl(cat.adBannerUrl)}
                         alt="Ad preview"
                         className="w-full h-full object-cover"
                         onError={(e) => {

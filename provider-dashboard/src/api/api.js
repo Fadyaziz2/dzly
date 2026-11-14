@@ -1,6 +1,13 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:7001/api';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://169.58.109.98:7001/api';
+
+export const resolveMediaUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  const host = API_BASE_URL.replace(/\/api\/?$/, '');
+  return url.startsWith('/') ? `${host}${url}` : `${host}/${url}`;
+};
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -27,4 +34,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-
