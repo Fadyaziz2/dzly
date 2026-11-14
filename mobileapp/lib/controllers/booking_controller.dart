@@ -2,11 +2,15 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../core/config/api_config.dart';
 import '../models/booking_model.dart';
+import '../models/pharmacy_model.dart';
 import '../models/service_model.dart';
 import '../services/api_service.dart';
 
 class BookingController extends ChangeNotifier {
   final ApiService _api = ApiService();
+
+  List<PharmacyOrderModel> _pharmacyOrders = [];
+  List<PharmacyOrderModel> get pharmacyOrders => _pharmacyOrders;
 
   List<BookingModel> _bookings = [
     const BookingModel(
@@ -62,14 +66,24 @@ class BookingController extends ChangeNotifier {
 
     try {
       final response = await _api.get(ApiConfig.myBookings);
-      if (response['bookings'] != null) {
+      if (response is Map && response['bookings'] != null) {
         final List list = response['bookings'];
         if (list.isNotEmpty) {
           _bookings = list.map((b) => BookingModel.fromJson(b)).toList();
         }
       }
-    } catch (e) {
-      debugPrint('Error fetching my bookings: $e');
+
+      // Also fetch pharmacy orders
+      try {
+        final pharmRes = await _api.get(ApiConfig.pharmacyOrders);
+        if (pharmRes is Map && pharmRes['data'] is List) {
+          _pharmacyOrders = (pharmRes['data'] as List)
+              .map((item) => PharmacyOrderModel.fromJson(item as Map<String, dynamic>))
+              .toList();
+        }
+      } catch (_) {}
+    } catch (_) {
+      // Use fallback initial bookings when offline or guest
     } finally {
       _isLoading = false;
       notifyListeners();

@@ -50,6 +50,7 @@ exports.getAllServices = async (req, res, next) => {
       success: true,
       count: services.length,
       services,
+      data: services,
     });
   } catch (error) {
     next(error);
@@ -219,6 +220,7 @@ exports.getMyServices = async (req, res, next) => {
       success: true,
       count: services.length,
       services,
+      data: services,
     });
   } catch (error) {
     next(error);

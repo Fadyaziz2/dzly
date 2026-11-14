@@ -50,6 +50,27 @@ const categorySchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    // Category Inner Ad & Promotion Banner
+    adBannerUrl: {
+      type: String,
+      default: '',
+    },
+    adBannerTitle: {
+      type: String,
+      default: '',
+    },
+    adBannerSubtitle: {
+      type: String,
+      default: '',
+    },
+    adBannerActionText: {
+      type: String,
+      default: '',
+    },
+    adBannerActionUrl: {
+      type: String,
+      default: '',
+    },
     description: {
       type: String,
       default: '',

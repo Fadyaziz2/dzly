@@ -12,10 +12,13 @@ router.post('/', protect, upload.single('file'), (req, res) => {
   }
 
   const fileUrl = `/uploads/${req.file.filename}`;
+  const host = req.get('host');
+  const fullUrl = `${req.protocol}://${host}${fileUrl}`;
   res.json({
     success: true,
     message: 'تم رفع الملف بنجاح',
     fileUrl,
+    fullUrl,
     filename: req.file.filename,
     mimetype: req.file.mimetype,
     size: req.file.size,

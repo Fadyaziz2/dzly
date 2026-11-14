@@ -3,12 +3,14 @@ import 'package:provider/provider.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/navigation_controller.dart';
 import '../../controllers/notifications_controller.dart';
+import '../../core/config/api_config.dart';
 import '../../core/constants/app_assets.dart';
 import '../../core/theme/app_colors.dart';
 import '../../widgets/category_card.dart';
 import '../../widgets/offer_card.dart';
 import '../auth/register_view.dart';
 import '../category/category_view.dart';
+import '../pharmacy/pharmacy_search_view.dart';
 import '../service_details/service_details_view.dart';
 
 class HomeView extends StatelessWidget {
@@ -62,20 +64,33 @@ class HomeView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. الهيدر العلوي المتطابق بالكامل مع التصميم المرفق
+          // 1. الهيدر العلوي المتطابق بالكامل مع التصميم المرجعي
           Stack(
             children: [
-              // صورة مدينة الوادي بالصحراء والمئذنة في الخلفية
+              // صورة مدينة الوادي بالغروب الدافئ (ديناميكية من الداش بورد أو الأصول كاحتياطي)
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
-                child: Image.asset(
-                  AppAssets.headerBg,
-                  height: 250,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+                child: homeCtrl.headerBannerUrl.isNotEmpty
+                    ? Image.network(
+                        ApiConfig.resolveUrl(homeCtrl.headerBannerUrl),
+                        height: 250,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Image.asset(
+                          AppAssets.headerElOued,
+                          height: 250,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Image.asset(
+                        AppAssets.headerElOued,
+                        height: 250,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
               ),
-              // تدرج لوني أزرق احترافي للحفاظ على تباين النصوص وتطابق الصورة
+              // طبقة تدرج لوني أزرق (#0A66C2) من الأعلى تتلاشى لشفاف في الأسفل
               Container(
                 height: 250,
                 padding: const EdgeInsets.fromLTRB(16, 44, 16, 16),
@@ -85,8 +100,8 @@ class HomeView extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      const Color(0xFF0D47A1).withOpacity(0.85),
-                      const Color(0xFF1565C0).withOpacity(0.60),
+                      AppColors.primaryBlue.withOpacity(0.88),
+                      AppColors.primaryBlue.withOpacity(0.55),
                       Colors.transparent,
                     ],
                   ),
@@ -94,12 +109,121 @@ class HomeView extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // الصف العلوي: الموقع، الشعار، الإشعارات والقائمة
+                    // الصف العلوي: يمين الهيدر القائمة والجرس، المنتصف الشعار، يسار الهيدر محدد المدينة
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // محدد المدينة (الوادي)
+                        // يمين الهيدر: أيقونة القائمة الجانبية (≡) وأيقونة الجرس بنقطة حمراء
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            GestureDetector(
+                              onTap: () => navCtrl.setIndex(4),
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                child: const Icon(
+                                  Icons.menu_rounded,
+                                  color: Colors.white,
+                                  size: 26,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            GestureDetector(
+                              onTap: () => navCtrl.setIndex(3),
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    child: const Icon(
+                                      Icons.notifications_none_rounded,
+                                      color: Colors.white,
+                                      size: 26,
+                                    ),
+                                  ),
+                                  if (unreadCount > 0)
+                                    Positioned(
+                                      top: 4,
+                                      right: 6,
+                                      child: Container(
+                                        width: 9,
+                                        height: 9,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.redAccent,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // منتصف الهيدر: شعار التطبيق (تقويم + موقع أصفر وأبيض، احجزلي Dz، كل خدماتك في مكان واحد)
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(
+                                    Icons.calendar_month_rounded,
+                                    color: AppColors.primaryBlue,
+                                    size: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(
+                                  Icons.location_on,
+                                  color: AppColors.accentYellow,
+                                  size: 22,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 2),
+                            const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'احجزلي',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: -0.5,
+                                  ),
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Dz',
+                                  style: TextStyle(
+                                    color: AppColors.accentYellow,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Text(
+                              'كل خدماتك في مكان واحد',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // يسار الهيدر: دائرة بيضاء بداخلها دبوس موقع أزرق وبجانبها "الوادي ⌄" وتحتها "حدد مدينتك"
                         GestureDetector(
                           onTap: () => _showCityPicker(context, homeCtrl),
                           child: Row(
@@ -109,12 +233,18 @@ class HomeView extends StatelessWidget {
                                 width: 34,
                                 height: 34,
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withOpacity(0.95),
                                   shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 4,
+                                    ),
+                                  ],
                                 ),
                                 child: const Icon(
                                   Icons.location_on,
-                                  color: Color(0xFF0D6EFD),
+                                  color: AppColors.primaryBlue,
                                   size: 20,
                                 ),
                               ),
@@ -151,129 +281,16 @@ class HomeView extends StatelessWidget {
                             ],
                           ),
                         ),
-
-                        // شعار "احجزلي Dz" بالمركز
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // أيقونة التقويم والموقع
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: const Icon(
-                                    Icons.calendar_month_rounded,
-                                    color: Color(0xFF0D6EFD),
-                                    size: 20,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                const Icon(
-                                  Icons.location_on,
-                                  color: AppColors.accentYellow,
-                                  size: 22,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 2),
-                            // عنوان الشعار
-                            const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'احجزلي',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: -0.5,
-                                  ),
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  'Dz',
-                                  style: TextStyle(
-                                    color: AppColors.accentYellow,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Text(
-                              'كل خدماتك في مكان واحد',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 10.5,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        // أيقونة الإشعارات والقائمة
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // جرس الإشعارات بنقطة حمراء
-                            GestureDetector(
-                              onTap: () => navCtrl.setIndex(3),
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(6),
-                                    child: const Icon(
-                                      Icons.notifications_none_rounded,
-                                      color: Colors.white,
-                                      size: 26,
-                                    ),
-                                  ),
-                                  if (unreadCount > 0)
-                                    Positioned(
-                                      top: 4,
-                                      right: 6,
-                                      child: Container(
-                                        width: 9,
-                                        height: 9,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.redAccent,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            // أيقونة القائمة
-                            GestureDetector(
-                              onTap: () => navCtrl.setIndex(4),
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                child: const Icon(
-                                  Icons.menu_rounded,
-                                  color: Colors.white,
-                                  size: 26,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
                       ],
                     ),
 
-                    // شريط البحث الدائري (Capsule Pill)
+                    // أسفل الهيدر: شريط بحث أبيض دائري الحواف (BorderRadius.circular(30))
                     Container(
                       height: 48,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(28),
+                        borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.12),
@@ -286,7 +303,7 @@ class HomeView extends StatelessWidget {
                         children: [
                           const Icon(
                             Icons.search,
-                            color: Color(0xFF0F172A),
+                            color: AppColors.textDark,
                             size: 22,
                           ),
                           const SizedBox(width: 8),
@@ -316,7 +333,7 @@ class HomeView extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          // 2. شريط الفئات السريع الدائري المطابق تماماً
+          // 2. شريط الفئات السريع (Quick Filter Chips)
           SizedBox(
             height: 72,
             child: ListView(
@@ -359,13 +376,24 @@ class HomeView extends StatelessWidget {
                   isSelected: homeCtrl.selectedQuickFilterId == 'houses',
                   onTap: () => homeCtrl.toggleQuickFilter('houses'),
                 ),
+                _buildQuickChip(
+                  title: 'صيدليات 💊',
+                  icon: Icons.local_pharmacy_rounded,
+                  isSelected: homeCtrl.selectedQuickFilterId == 'pharmacy',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const PharmacySearchView()),
+                    );
+                  },
+                ),
               ],
             ),
           ),
 
           const SizedBox(height: 14),
 
-          // 3. قسم أهم التصنيفات (شبكة 4 أعمدة في صفين = 8 أقسام)
+          // 3. قسم "أهم التصنيفات" (شبكة 4 أعمدة × صفين = 8 كروت)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
@@ -375,7 +403,7 @@ class HomeView extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.grid_view_rounded,
-                      color: Color(0xFF0F172A),
+                      color: AppColors.textDark,
                       size: 20,
                     ),
                     SizedBox(width: 6),
@@ -384,7 +412,7 @@ class HomeView extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF0F172A),
+                        color: AppColors.textDark,
                       ),
                     ),
                   ],
@@ -403,9 +431,9 @@ class HomeView extends StatelessWidget {
                     );
                   },
                   child: const Text(
-                    'عرض الكل >',
+                    'عرض الكل <',
                     style: TextStyle(
-                      color: Color(0xFF0D6EFD),
+                      color: AppColors.primaryBlue,
                       fontSize: 12.5,
                       fontWeight: FontWeight.w600,
                     ),
@@ -417,7 +445,7 @@ class HomeView extends StatelessWidget {
 
           const SizedBox(height: 10),
 
-          // شبكة الـ 8 أقسام بأعلى دقة مطابقة للصورة (4 أعمدة)
+          // شبكة الـ 8 تصنيفات (4 أعمدة × صفين)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: GridView.builder(
@@ -435,16 +463,25 @@ class HomeView extends StatelessWidget {
                 return CategoryCard(
                   category: cat,
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => CategoryView(
-                          categoryId: cat.id,
-                          title: cat.title,
-                          themeColor: cat.color,
+                    if (cat.id == 'pharmacy') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PharmacySearchView(),
                         ),
-                      ),
-                    );
+                      );
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CategoryView(
+                            categoryId: cat.id,
+                            title: cat.title,
+                            themeColor: cat.color,
+                          ),
+                        ),
+                      );
+                    }
                   },
                 );
               },
@@ -453,15 +490,20 @@ class HomeView extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // 4. بانر أعلن عن مشروعك المطابق للصورة
+          // 4. بانر "أعلن عن مشروعك" (ديناميكي من الداش بورد أو من أصول التطبيق كاحتياطي)
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 14),
             height: 125,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              image: const DecorationImage(
-                image: AssetImage(AppAssets.adBanner),
+              image: DecorationImage(
+                image: homeCtrl.homeAdBannerUrl.isNotEmpty
+                    ? NetworkImage(ApiConfig.resolveUrl(homeCtrl.homeAdBannerUrl)) as ImageProvider
+                    : const AssetImage(AppAssets.adBannerBg),
                 fit: BoxFit.cover,
+                onError: (exception, stackTrace) {
+                  // Fallback safely handled
+                },
               ),
               boxShadow: [
                 BoxShadow(
@@ -477,7 +519,7 @@ class HomeView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 gradient: LinearGradient(
                   colors: [
-                    const Color(0xFF0B192C).withOpacity(0.92),
+                    AppColors.darkNavy.withOpacity(0.92),
                     const Color(0xFF1E3E62).withOpacity(0.70),
                   ],
                 ),
@@ -489,18 +531,22 @@ class HomeView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          'أعلن عن مشروعك',
-                          style: TextStyle(
+                        Text(
+                          homeCtrl.homeAdBannerTitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 3),
-                        const Text(
-                          'معنا يصل إعلانك إلى آلاف المستخدمين',
-                          style: TextStyle(
+                        Text(
+                          homeCtrl.homeAdBannerSubtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 11,
                           ),
@@ -510,8 +556,8 @@ class HomeView extends StatelessWidget {
                           height: 32,
                           child: ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFFACC15),
-                              foregroundColor: const Color(0xFF0F172A),
+                              backgroundColor: AppColors.accentYellow,
+                              foregroundColor: AppColors.textDark,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                               ),
@@ -527,9 +573,9 @@ class HomeView extends StatelessWidget {
                               );
                             },
                             icon: const Icon(Icons.campaign_rounded, size: 16),
-                            label: const Text(
-                              'تواصل معنا',
-                              style: TextStyle(
+                            label: Text(
+                              homeCtrl.homeAdBannerActionText,
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 11.5,
                               ),
@@ -561,7 +607,7 @@ class HomeView extends StatelessWidget {
 
           const SizedBox(height: 18),
 
-          // 5. قسم عروض وخصومات
+          // 5. قسم "عروض وخصومات" (4 كروت أفقية)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
@@ -572,7 +618,7 @@ class HomeView extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(4),
                       decoration: const BoxDecoration(
-                        color: Color(0xFF0F172A),
+                        color: AppColors.textDark,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -587,7 +633,7 @@ class HomeView extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF0F172A),
+                        color: AppColors.textDark,
                       ),
                     ),
                   ],
@@ -607,9 +653,9 @@ class HomeView extends StatelessWidget {
                     );
                   },
                   child: const Text(
-                    'عرض الكل >',
+                    'عرض الكل <',
                     style: TextStyle(
-                      color: Color(0xFF0D6EFD),
+                      color: AppColors.primaryBlue,
                       fontSize: 12.5,
                       fontWeight: FontWeight.w600,
                     ),
@@ -623,7 +669,7 @@ class HomeView extends StatelessWidget {
 
           // قائمة الكروت الأفقية للعروض
           SizedBox(
-            height: 200,
+            height: 215,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -633,12 +679,21 @@ class HomeView extends StatelessWidget {
                 return OfferCard(
                   service: offer,
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ServiceDetailsView(service: offer),
-                      ),
-                    );
+                    if (offer.categoryId == 'pharmacy') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PharmacySearchView(),
+                        ),
+                      );
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ServiceDetailsView(service: offer),
+                        ),
+                      );
+                    }
                   },
                 );
               },
@@ -663,14 +718,15 @@ class HomeView extends StatelessWidget {
         width: 78,
         margin: const EdgeInsets.only(left: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF0D6EFD) : Colors.white,
+          color: isSelected ? AppColors.primaryBlue : const Color(0xFFF1F5F9),
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
+            if (isSelected)
+              BoxShadow(
+                color: AppColors.primaryBlue.withOpacity(0.3),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
           ],
         ),
         child: Column(
@@ -678,7 +734,7 @@ class HomeView extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: isSelected ? Colors.white : const Color(0xFF1E293B),
+              color: isSelected ? Colors.white : AppColors.textDark,
               size: 22,
             ),
             const SizedBox(height: 5),
@@ -687,7 +743,7 @@ class HomeView extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFF1E293B),
+                color: isSelected ? Colors.white : AppColors.textDark,
                 fontSize: 10.5,
                 fontWeight: FontWeight.bold,
               ),

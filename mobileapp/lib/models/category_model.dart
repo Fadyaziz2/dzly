@@ -41,6 +41,12 @@ class CategoryModel {
   final Color color;
   final IconData icon;
   final String imageAsset;
+  final String imageUrl;
+  final String adBannerUrl;
+  final String adBannerTitle;
+  final String adBannerSubtitle;
+  final String adBannerActionText;
+  final String adBannerActionUrl;
   final String description;
   final List<DynamicFieldModel> bookingFields;
 
@@ -51,6 +57,12 @@ class CategoryModel {
     required this.color,
     required this.icon,
     required this.imageAsset,
+    this.imageUrl = '',
+    this.adBannerUrl = '',
+    this.adBannerTitle = '',
+    this.adBannerSubtitle = '',
+    this.adBannerActionText = '',
+    this.adBannerActionUrl = '',
     this.description = '',
     this.bookingFields = const [],
   });
@@ -64,6 +76,12 @@ class CategoryModel {
       color: _parseColor(json['color']),
       icon: _parseIcon(json['icon'] ?? catId),
       imageAsset: _mapAsset(catId, json['imageAsset']),
+      imageUrl: json['imageUrl'] ?? '',
+      adBannerUrl: json['adBannerUrl'] ?? '',
+      adBannerTitle: json['adBannerTitle'] ?? '',
+      adBannerSubtitle: json['adBannerSubtitle'] ?? '',
+      adBannerActionText: json['adBannerActionText'] ?? '',
+      adBannerActionUrl: json['adBannerActionUrl'] ?? '',
       description: json['description'] ?? '',
       bookingFields: (json['bookingFieldsSpecification'] as List<dynamic>?)
               ?.map((f) => DynamicFieldModel.fromJson(f as Map<String, dynamic>))
@@ -103,6 +121,9 @@ class CategoryModel {
       case 'villa_rounded':
       case 'farms_halls':
         return Icons.villa_rounded;
+      case 'local_pharmacy_rounded':
+      case 'pharmacy':
+        return Icons.local_pharmacy_rounded;
       case 'home_work_rounded':
       case 'houses':
         return Icons.home_work_rounded;
@@ -129,6 +150,8 @@ class CategoryModel {
         return AppAssets.catFarmsHalls;
       case 'houses':
         return AppAssets.catHouses;
+      case 'pharmacy':
+        return AppAssets.catPharmacy;
       default:
         return fallback?.isNotEmpty == true ? fallback! : AppAssets.catWeddings;
     }

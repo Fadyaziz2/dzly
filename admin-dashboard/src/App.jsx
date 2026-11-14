@@ -9,6 +9,8 @@ import CategoriesView from './components/CategoriesView';
 import ProvidersView from './components/ProvidersView';
 import UsersView from './components/UsersView';
 import SettingsView from './components/SettingsView';
+import PharmacyAdminView from './components/PharmacyAdminView';
+import BannersView from './components/BannersView';
 import LoginView from './components/LoginView';
 import { RefreshCw } from 'lucide-react';
 
@@ -35,8 +37,12 @@ function DashboardContent() {
     switch (activeTab) {
       case 'analytics':
         return <AnalyticsView />;
+      case 'banners':
+        return <BannersView />;
       case 'bookings':
         return <BookingsView />;
+      case 'pharmacy':
+        return <PharmacyAdminView />;
       case 'services':
         return <ServicesView />;
       case 'categories':
@@ -56,8 +62,12 @@ function DashboardContent() {
     switch (activeTab) {
       case 'analytics':
         return 'لوحة المؤشرات والتحليلات العامة';
+      case 'banners':
+        return 'إدارة البنرات والصور الترويجية للتطبيق';
       case 'bookings':
         return 'إدارة الحجوزات والعمليات التشغيلية';
+      case 'pharmacy':
+        return 'إدارة الصيدليات وطلبات الأدوية والروشتات';
       case 'services':
         return 'إدارة الخدمات واعتماد العروض';
       case 'categories':

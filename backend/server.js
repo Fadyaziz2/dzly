@@ -43,12 +43,13 @@ app.use('/api/settings', require('./src/routes/settingsRoutes'));
 app.use('/api/financials', require('./src/routes/financialRoutes'));
 app.use('/api/favorites', require('./src/routes/favoriteRoutes'));
 app.use('/api/notifications', require('./src/routes/notificationRoutes'));
+app.use('/api/pharmacy', require('./src/routes/pharmacyRoutes'));
 app.use('/api/upload', require('./src/routes/uploadRoutes'));
 
 // Centralized error handler
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 7001;
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {

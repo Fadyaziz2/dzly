@@ -97,7 +97,7 @@ npm test
 
 # 4. تشغيل خادم الـ API:
 npm start
-# يعمل السيرفر على: http://localhost:5001
+# يعمل السيرفر على: http://localhost:7001 (أو http://169.58.109.98:7001)
 ```
 
 ---
@@ -111,7 +111,7 @@ npm install
 
 # 2. تشغيل اللوحة في وضع التطوير:
 npm run dev
-# تفتح اللوحة على: http://localhost:3000
+# تفتح اللوحة على: http://localhost:7002
 ```
 *سجل الدخول باستخدام:* `admin@dzly.com` / `admin123456`.
 
@@ -126,7 +126,7 @@ npm install
 
 # 2. تشغيل اللوحة في وضع التطوير:
 npm run dev
-# تفتح اللوحة على: http://localhost:3001
+# تفتح اللوحة على: http://localhost:7003
 ```
 *سجل الدخول باستخدام:*
 * المزود النشط: `provider.active@dzly.com` / `provider123456`
@@ -160,37 +160,31 @@ flutter run
 وقم بتعديل المتغير:
 ```dart
 class ApiConfig {
-  // للتطوير المحلي (Web / macOS / iOS Simulator):
-  static String baseUrl = 'http://localhost:5001/api';
-
-  // لمحاكي الأندرويد (Android Emulator):
-  // static String baseUrl = 'http://10.0.2.2:5001/api';
-
-  // عند الرفع على سيرفر حقيقي (Production Domain):
-  // static String baseUrl = 'https://api.ihjizli-dz.com/api';
+  // عنوان السيرفر والباك إند:
+  static String baseUrl = 'http://169.58.109.98:7001/api';
 }
 ```
 
 ### 2. في لوحة تحكم الأدمن (`/admin-dashboard`):
 أنشئ أو عدّل ملف `.env` داخل المجلد:
 ```env
-VITE_API_URL=https://api.ihjizli-dz.com/api
+VITE_API_URL=http://localhost:7001/api
 ```
 
 ### 3. في لوحة تحكم مزود الخدمة (`/provider-dashboard`):
 أنشئ أو عدّل ملف `.env` داخل المجلد:
 ```env
-VITE_API_URL=https://api.ihjizli-dz.com/api
+VITE_API_URL=http://localhost:7001/api
 ```
 
 ### 4. في الباك اند (`/backend`):
 عدّل ملف `.env` لضبط رابط قاعدة البيانات والمنفذ:
 ```env
-PORT=5001
-NODE_ENV=production
-MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/ihjizli_dz
-JWT_SECRET=YOUR_SECURE_JWT_SECRET
-BASE_URL=https://api.ihjizli-dz.com
+PORT=7001
+NODE_ENV=development
+MONGO_URI=mongodb://localhost:27017/ihjizli_dz
+JWT_SECRET=ihjizli_super_secret_jwt_key_dz_2026_production
+BASE_URL=http://localhost:7001
 ```
 
 ---

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/config/api_config.dart';
 import '../core/constants/app_assets.dart';
+import '../core/theme/app_colors.dart';
 import '../models/category_model.dart';
 import '../models/service_model.dart';
 import '../services/api_service.dart';
@@ -28,7 +29,7 @@ class HomeController extends ChangeNotifier {
       id: 'cars',
       title: 'كراء السيارات',
       titleEn: 'Car Rental',
-      color: Color(0xFF0D6EFD),
+      color: AppColors.carsBlue,
       icon: Icons.directions_car_rounded,
       imageAsset: AppAssets.catCars,
     ),
@@ -36,7 +37,7 @@ class HomeController extends ChangeNotifier {
       id: 'beauty',
       title: 'التجميل والحلاقة',
       titleEn: 'Beauty & Spa',
-      color: Color(0xFFE91E63),
+      color: AppColors.beautyPink,
       icon: Icons.face_retouching_natural,
       imageAsset: AppAssets.catBeauty,
     ),
@@ -44,7 +45,7 @@ class HomeController extends ChangeNotifier {
       id: 'farms',
       title: 'المزارع',
       titleEn: 'Farms',
-      color: Color(0xFF2E7D32),
+      color: AppColors.farmsGreen,
       icon: Icons.eco_rounded,
       imageAsset: AppAssets.catFarms,
     ),
@@ -52,7 +53,7 @@ class HomeController extends ChangeNotifier {
       id: 'weddings',
       title: 'قاعات الأفراح',
       titleEn: 'Wedding Halls',
-      color: Color(0xFFC2185B),
+      color: AppColors.weddingsRed,
       icon: Icons.celebration_rounded,
       imageAsset: AppAssets.catWeddings,
     ),
@@ -60,7 +61,7 @@ class HomeController extends ChangeNotifier {
       id: 'pools',
       title: 'مسابح',
       titleEn: 'Pools',
-      color: Color(0xFF00ACC1),
+      color: AppColors.poolsCyan,
       icon: Icons.pool_rounded,
       imageAsset: AppAssets.catPools,
     ),
@@ -68,7 +69,7 @@ class HomeController extends ChangeNotifier {
       id: 'hotels',
       title: 'فنادق',
       titleEn: 'Hotels',
-      color: Color(0xFF1976D2),
+      color: AppColors.hotelsBlue,
       icon: Icons.hotel_rounded,
       imageAsset: AppAssets.catHotels,
     ),
@@ -76,7 +77,7 @@ class HomeController extends ChangeNotifier {
       id: 'farms_halls',
       title: 'المزارع والقاعات',
       titleEn: 'Farms & Halls',
-      color: Color(0xFF6A1B9A),
+      color: AppColors.farmsHallsPurple,
       icon: Icons.villa_rounded,
       imageAsset: AppAssets.catFarmsHalls,
     ),
@@ -84,9 +85,17 @@ class HomeController extends ChangeNotifier {
       id: 'houses',
       title: 'كراء المنازل',
       titleEn: 'Houses & Apartments',
-      color: Color(0xFF00897B),
+      color: AppColors.housesTeal,
       icon: Icons.home_work_rounded,
       imageAsset: AppAssets.catHouses,
+    ),
+    CategoryModel(
+      id: 'pharmacy',
+      title: 'الصيدليات والأدوية',
+      titleEn: 'Pharmacies & Medicines',
+      color: AppColors.pharmacyTeal,
+      icon: Icons.local_pharmacy_rounded,
+      imageAsset: AppAssets.catPharmacy,
     ),
   ];
 
@@ -104,7 +113,7 @@ class HomeController extends ChangeNotifier {
       badgeLabel: 'عرض',
       rating: 4.8,
       reviewsCount: 88,
-      accentColor: Color(0xFF0D6EFD),
+      accentColor: AppColors.carsBlue,
       imageAsset: AppAssets.offerCar,
       features: ['تأمين شامل', 'سيارات جديدة 2024', 'خيار مع سائق أو بدون', 'كيلومترات مفتوحة'],
     ),
@@ -121,7 +130,7 @@ class HomeController extends ChangeNotifier {
       badgeLabel: 'عرض',
       rating: 4.9,
       reviewsCount: 210,
-      accentColor: Color(0xFF2E7D32),
+      accentColor: AppColors.farmsGreen,
       imageAsset: AppAssets.offerFarm,
       features: ['مسبح خاص', 'مساحات خضراء', 'منطقة شواء', 'واي فاي مجاني'],
     ),
@@ -138,7 +147,7 @@ class HomeController extends ChangeNotifier {
       badgeLabel: 'عرض',
       rating: 4.8,
       reviewsCount: 98,
-      accentColor: Color(0xFF6A1B9A),
+      accentColor: AppColors.beautyPink,
       imageAsset: AppAssets.offerSalon,
       features: ['منتجات عالمية', 'غرف VIP خاصة', 'حجز مسبق بدون انتظار'],
     ),
@@ -155,14 +164,39 @@ class HomeController extends ChangeNotifier {
       badgeLabel: 'خصم خاص',
       rating: 4.9,
       reviewsCount: 142,
-      accentColor: Color(0xFFE53935),
+      accentColor: AppColors.weddingsRed,
       imageAsset: AppAssets.offerHall,
       features: ['تكييف مركزي', 'موقف سيارات واسع', 'نظام صوتي حديث', 'طاقم ضيافة'],
+    ),
+    ServiceModel(
+      id: 'srv_pharmacy',
+      categoryId: 'pharmacy',
+      title: 'صيدلية الشفاء المركزية',
+      subtitle: 'مناوبة 24 ساعة وطلب أدوية',
+      city: 'الوادي',
+      address: 'شارع فلسطين، وسط المدينة - الوادي',
+      price: 205,
+      priceUnit: 'د.ج',
+      discountPercent: 15,
+      badgeLabel: 'خصم أدوية',
+      rating: 4.9,
+      reviewsCount: 142,
+      accentColor: AppColors.pharmacyTeal,
+      imageAsset: AppAssets.offerPharmacy,
+      features: ['مناوبة ليلية 24 ساعة', 'توفير أدوية حرة ومقيدة', 'استلام فوري أو توصيل', 'مقارنة أفضل الأسعار'],
     ),
   ];
 
   List<CategoryModel> _categories = _defaultCategories;
   List<ServiceModel> _allServices = _fallbackServices;
+
+  // Dynamic Banners
+  String _headerBannerUrl = '';
+  String _homeAdBannerUrl = '';
+  String _homeAdBannerTitle = 'أعلن عن مشروعك';
+  String _homeAdBannerSubtitle = 'معنا يصل إعلانك إلى آلاف المستخدمين';
+  String _homeAdBannerActionText = 'تواصل معنا';
+  String _homeAdBannerActionUrl = '';
 
   HomeController() {
     loadData();
@@ -172,6 +206,13 @@ class HomeController extends ChangeNotifier {
   String get searchQuery => _searchQuery;
   String? get selectedQuickFilterId => _selectedQuickFilterId;
   bool get isLoading => _isLoading;
+
+  String get headerBannerUrl => _headerBannerUrl;
+  String get homeAdBannerUrl => _homeAdBannerUrl;
+  String get homeAdBannerTitle => _homeAdBannerTitle;
+  String get homeAdBannerSubtitle => _homeAdBannerSubtitle;
+  String get homeAdBannerActionText => _homeAdBannerActionText;
+  String get homeAdBannerActionUrl => _homeAdBannerActionUrl;
 
   List<CategoryModel> get categories => _categories;
 
@@ -217,28 +258,60 @@ class HomeController extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
+    // 1. Fetch Dynamic Banners & Global Settings
+    try {
+      final setRes = await _api.get(ApiConfig.settings);
+      if (setRes['success'] == true) {
+        final d = (setRes['data'] ?? setRes['settings']) as Map<String, dynamic>?;
+        if (d != null) {
+          _headerBannerUrl = d['headerBannerUrl'] ?? '';
+          _homeAdBannerUrl = d['homeAdBannerUrl'] ?? '';
+          if (d['homeAdBannerTitle'] != null && (d['homeAdBannerTitle'] as String).trim().isNotEmpty) {
+            _homeAdBannerTitle = (d['homeAdBannerTitle'] as String).trim();
+          }
+          if (d['homeAdBannerSubtitle'] != null && (d['homeAdBannerSubtitle'] as String).trim().isNotEmpty) {
+            _homeAdBannerSubtitle = (d['homeAdBannerSubtitle'] as String).trim();
+          }
+          if (d['homeAdBannerActionText'] != null && (d['homeAdBannerActionText'] as String).trim().isNotEmpty) {
+            _homeAdBannerActionText = (d['homeAdBannerActionText'] as String).trim();
+          }
+          _homeAdBannerActionUrl = d['homeAdBannerActionUrl'] ?? '';
+        }
+      }
+    } catch (_) {
+      // Keep defaults
+    }
+
+    // 2. Fetch Categories (with dynamic imageUrl and category ad banners)
     try {
       final res = await _api.get(ApiConfig.categories);
-      if (res['success'] == true && res['data'] != null) {
-        final list = (res['data'] as List<dynamic>)
-            .map((e) => CategoryModel.fromJson(e as Map<String, dynamic>))
-            .toList();
-        if (list.isNotEmpty) {
-          _categories = list;
+      if (res['success'] == true) {
+        final rawList = (res['data'] ?? res['categories']) as List<dynamic>?;
+        if (rawList != null) {
+          final list = rawList
+              .map((e) => CategoryModel.fromJson(e as Map<String, dynamic>))
+              .toList();
+          if (list.isNotEmpty) {
+            _categories = list;
+          }
         }
       }
     } catch (_) {
       // Fallback already assigned
     }
 
+    // 3. Fetch Services
     try {
       final srvRes = await _api.get(ApiConfig.services);
-      if (srvRes['success'] == true && srvRes['data'] != null) {
-        final list = (srvRes['data'] as List<dynamic>)
-            .map((e) => ServiceModel.fromJson(e as Map<String, dynamic>))
-            .toList();
-        if (list.isNotEmpty) {
-          _allServices = list;
+      if (srvRes['success'] == true) {
+        final rawList = (srvRes['data'] ?? srvRes['services']) as List<dynamic>?;
+        if (rawList != null) {
+          final list = rawList
+              .map((e) => ServiceModel.fromJson(e as Map<String, dynamic>))
+              .toList();
+          if (list.isNotEmpty) {
+            _allServices = list;
+          }
         }
       }
     } catch (_) {

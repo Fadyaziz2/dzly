@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/config/api_config.dart';
 import '../models/category_model.dart';
 
 class CategoryCard extends StatelessWidget {
@@ -21,7 +22,7 @@ class CategoryCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: category.color.withOpacity(0.18),
+              color: category.color.withOpacity(0.2),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -31,26 +32,35 @@ class CategoryCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           child: Column(
             children: [
-              // 1. صورة النشاط في النصف العلوي
+              // 1. صورة النشاط الحقيقية في النصف العلوي (سحابية من الداش بورد أو من الأصول كاحتياطي)
               Expanded(
-                flex: 55,
+                flex: 54,
                 child: SizedBox(
                   width: double.infinity,
-                  child: Image.asset(
-                    category.imageAsset,
-                    fit: BoxFit.cover,
-                  ),
+                  child: category.imageUrl.isNotEmpty
+                      ? Image.network(
+                          ApiConfig.resolveUrl(category.imageUrl),
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Image.asset(
+                            category.imageAsset,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Image.asset(
+                          category.imageAsset,
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
 
-              // 2. الجزء السفلي الملون بالمنحنى ومسمى القسم
+              // 2. النصف السفلي: قاعدة لونية صلبة متدرجة للأعلى
               Expanded(
-                flex: 52,
+                flex: 48,
                 child: Stack(
                   clipBehavior: Clip.none,
                   alignment: Alignment.center,
                   children: [
-                    // خلفية التدرج اللوني للقسم مع انحناء خفيف بالأعلى
+                    // خلفية اللون الصلب المتدرج للقسم
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
@@ -63,12 +73,12 @@ class CategoryCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      padding: const EdgeInsets.fromLTRB(4, 14, 4, 6),
+                      padding: const EdgeInsets.fromLTRB(4, 15, 4, 6),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const SizedBox(height: 2),
-                          // اسم القسم بالخط العريض
+                          const SizedBox(height: 1),
+                          // اسم القسم باللون الأبيض العريض
                           Text(
                             category.title,
                             textAlign: TextAlign.center,
@@ -78,10 +88,10 @@ class CategoryCard extends StatelessWidget {
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 10.5,
-                              letterSpacing: -0.2,
+                              letterSpacing: -0.3,
                             ),
                           ),
-                          // زر السهم الدائري الأبيض الصغير
+                          // دائرة بيضاء صغيرة بداخلها سهم صغير
                           Container(
                             width: 17,
                             height: 17,
@@ -99,28 +109,27 @@ class CategoryCard extends StatelessWidget {
                       ),
                     ),
 
-                    // الأيقونة الدائرية العائمة الفاصلة بين الصورة واللون
+                    // دائرة بيضاء بداخلها أيقونة القسم بنفس لون الكارت على الحد الفاصل
                     Positioned(
                       top: -16,
                       child: Container(
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: category.color,
+                          color: Colors.white,
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2.2),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.15),
-                              blurRadius: 4,
+                              color: Colors.black.withOpacity(0.18),
+                              blurRadius: 5,
                               offset: const Offset(0, 2),
                             ),
                           ],
                         ),
                         child: Icon(
                           category.icon,
-                          color: Colors.white,
-                          size: 16,
+                          color: category.color,
+                          size: 18,
                         ),
                       ),
                     ),

@@ -23,6 +23,7 @@ exports.getSettings = async (req, res, next) => {
     res.json({
       success: true,
       settings,
+      data: settings,
     });
   } catch (error) {
     next(error);
@@ -49,6 +50,12 @@ exports.updateSettings = async (req, res, next) => {
       ccpAccount,
       announcementText,
       termsAndConditions,
+      headerBannerUrl,
+      homeAdBannerUrl,
+      homeAdBannerTitle,
+      homeAdBannerSubtitle,
+      homeAdBannerActionText,
+      homeAdBannerActionUrl,
     } = req.body;
 
     if (monthlySubscriptionPrice !== undefined) settings.monthlySubscriptionPrice = Number(monthlySubscriptionPrice);
@@ -60,6 +67,12 @@ exports.updateSettings = async (req, res, next) => {
     if (ccpAccount !== undefined) settings.ccpAccount = ccpAccount;
     if (announcementText !== undefined) settings.announcementText = announcementText;
     if (termsAndConditions !== undefined) settings.termsAndConditions = termsAndConditions;
+    if (headerBannerUrl !== undefined) settings.headerBannerUrl = headerBannerUrl;
+    if (homeAdBannerUrl !== undefined) settings.homeAdBannerUrl = homeAdBannerUrl;
+    if (homeAdBannerTitle !== undefined) settings.homeAdBannerTitle = homeAdBannerTitle;
+    if (homeAdBannerSubtitle !== undefined) settings.homeAdBannerSubtitle = homeAdBannerSubtitle;
+    if (homeAdBannerActionText !== undefined) settings.homeAdBannerActionText = homeAdBannerActionText;
+    if (homeAdBannerActionUrl !== undefined) settings.homeAdBannerActionUrl = homeAdBannerActionUrl;
 
     await settings.save();
 

@@ -58,11 +58,41 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    providerType: {
+      type: String,
+      enum: ['general', 'pharmacy'],
+      default: 'general',
+    },
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point',
+      },
+      coordinates: {
+        type: [Number],
+        default: [6.8673, 33.3683], // [lng, lat] (default center of El Oued)
+      },
+    },
+    address: {
+      type: String,
+      default: '',
+    },
+    isOpen: {
+      type: Boolean,
+      default: true,
+    },
+    openingHours: {
+      type: String,
+      default: 'على مدار 24 ساعة',
+    },
   },
   {
     timestamps: true,
   }
 );
+
+userSchema.index({ location: '2dsphere' });
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {

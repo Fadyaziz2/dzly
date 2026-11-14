@@ -43,6 +43,31 @@ const settingsSchema = new mongoose.Schema(
       type: String,
       default: 'شروط وأحكام منصة احجزلي Dz المعمول بها داخل القطر الجزائري.',
     },
+    // Dynamic App Banners & Media
+    headerBannerUrl: {
+      type: String,
+      default: '',
+    },
+    homeAdBannerUrl: {
+      type: String,
+      default: '',
+    },
+    homeAdBannerTitle: {
+      type: String,
+      default: 'أعلن عن مشروعك',
+    },
+    homeAdBannerSubtitle: {
+      type: String,
+      default: 'معنا يصل إعلانك إلى آلاف المستخدمين',
+    },
+    homeAdBannerActionText: {
+      type: String,
+      default: 'تواصل معنا',
+    },
+    homeAdBannerActionUrl: {
+      type: String,
+      default: '',
+    },
   },
   {
     timestamps: true,

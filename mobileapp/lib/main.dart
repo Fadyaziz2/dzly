@@ -14,8 +14,15 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ApiService().init();
 
-  runApp(
-    MultiProvider(
+  runApp(const IhjizliDzApp());
+}
+
+class IhjizliDzApp extends StatelessWidget {
+  const IhjizliDzApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => NavigationController()),
         ChangeNotifierProvider(create: (_) => AuthController()..initAuth()),
@@ -24,27 +31,18 @@ void main() async {
         ChangeNotifierProvider(create: (_) => FavoritesController()),
         ChangeNotifierProvider(create: (_) => NotificationsController()),
       ],
-      child: const IhjizliDzApp(),
-    ),
-  );
-}
-
-class IhjizliDzApp extends StatelessWidget {
-  const IhjizliDzApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'احجزلي Dz',
-      theme: AppTheme.lightTheme,
-      builder: (context, child) {
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: child!,
-        );
-      },
-      home: const MainNavigationView(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'احجزلي Dz',
+        theme: AppTheme.lightTheme,
+        builder: (context, child) {
+          return Directionality(
+            textDirection: TextDirection.rtl,
+            child: child!,
+          );
+        },
+        home: const MainNavigationView(),
+      ),
     );
   }
 }

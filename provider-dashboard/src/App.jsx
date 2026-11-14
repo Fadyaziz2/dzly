@@ -9,6 +9,8 @@ import ServicesView from './components/ServicesView';
 import FinancialsView from './components/FinancialsView';
 import ReportsView from './components/ReportsView';
 import SubscriptionView from './components/SubscriptionView';
+import PharmacyInventoryView from './components/PharmacyInventoryView';
+import PharmacyOrdersView from './components/PharmacyOrdersView';
 import LoginView from './components/LoginView';
 import { RefreshCw } from 'lucide-react';
 
@@ -42,6 +44,10 @@ function ProviderAppContent() {
             onRefreshSubscription={refreshSubscription}
           />
         );
+      case 'pharmacy_orders':
+        return <PharmacyOrdersView subscriptionStatus={subscriptionStatus} />;
+      case 'pharmacy_inventory':
+        return <PharmacyInventoryView user={user} />;
       case 'services':
         return <ServicesView subscriptionStatus={subscriptionStatus} />;
       case 'financials':
@@ -66,6 +72,10 @@ function ProviderAppContent() {
         return 'لوحة المؤشرات والملخص العام';
       case 'bookings':
         return 'إدارة طلبات الحجز الواردة';
+      case 'pharmacy_orders':
+        return 'طلبات شراء الأدوية والروشتات الواردة';
+      case 'pharmacy_inventory':
+        return 'إدارة مخزون الأدوية والأسعار الفورية';
       case 'services':
         return 'إدارة خدماتي وعروضي الترويجية';
       case 'financials':

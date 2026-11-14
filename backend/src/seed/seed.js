@@ -12,6 +12,8 @@ const Subscription = require('../models/Subscription');
 const Settings = require('../models/Settings');
 const Notification = require('../models/Notification');
 const Favorite = require('../models/Favorite');
+const Medicine = require('../models/Medicine');
+const PharmacyOrder = require('../models/PharmacyOrder');
 
 const categoriesData = [
   {
@@ -406,6 +408,34 @@ const categoriesData = [
       },
     ],
   },
+  {
+    id: 'pharmacy',
+    title: 'الصيدليات',
+    titleEn: 'Pharmacies',
+    color: '#0D9488',
+    icon: 'local_pharmacy_rounded',
+    imageAsset: 'assets/images/categories/pharmacy.png',
+    description: 'ابحث عن الأدوية، قارن بين الأسعار وتعرف على أقرب الصيدليات المتاحة مع خدمة الاستلام أو التوصيل',
+    bookingFieldsSpecification: [
+      {
+        name: 'deliveryType',
+        label: 'طريقة الاستلام',
+        type: 'select',
+        required: true,
+        options: ['استلام مباشر من الصيدلية (Pickup)', 'توصيل منزلي سريع (Delivery)'],
+        defaultValue: 'استلام مباشر من الصيدلية (Pickup)',
+        helperText: 'حدد إن كنت ترغب بالاستلام بنفسك أو التوصيل لعنوانك',
+      },
+      {
+        name: 'prescriptionFile',
+        label: 'صورة الوصفة الطبية (الروشتة)',
+        type: 'file',
+        required: false,
+        defaultValue: '',
+        helperText: 'مطلوبة للأدوية التي تستوجب وصفة طبية قانونية',
+      },
+    ],
+  },
 ];
 
 const seedDB = async () => {
@@ -423,6 +453,8 @@ const seedDB = async () => {
     await Settings.deleteMany();
     await Notification.deleteMany();
     await Favorite.deleteMany();
+    await Medicine.deleteMany();
+    await PharmacyOrder.deleteMany();
     console.log('Cleared existing collections.');
 
     // 1. Seed Settings
@@ -491,7 +523,71 @@ const seedDB = async () => {
       status: 'active',
     });
 
-    console.log('Users seeded (Admin, Active Provider, Expired Provider, Client).');
+    // 3 Demo Pharmacy Providers in El Oued
+    const pharmacyAlshifa = await User.create({
+      name: 'د. أمين بن عمار',
+      email: 'pharmacy.alshifa@dzly.com',
+      phone: '0663333331',
+      password: 'provider123456',
+      role: 'provider',
+      providerType: 'pharmacy',
+      city: 'الوادي',
+      businessName: 'صيدلية الشفاء المركزية',
+      address: 'شارع فلسطين، وسط المدينة - الوادي',
+      commercialRegister: '39/00-482910B22',
+      providerCategory: 'pharmacy',
+      location: {
+        type: 'Point',
+        coordinates: [6.8673, 33.3683], // Downtown El Oued
+      },
+      isOpen: true,
+      openingHours: 'على مدار 24 ساعة (مناوبة ليلية)',
+      status: 'active',
+    });
+
+    const pharmacyAlnoor = await User.create({
+      name: 'د. سارة لعموري',
+      email: 'pharmacy.alnoor@dzly.com',
+      phone: '0663333332',
+      password: 'provider123456',
+      role: 'provider',
+      providerType: 'pharmacy',
+      city: 'الوادي',
+      businessName: 'صيدلية النور الحديثة',
+      address: 'حي الرمال، مقابل المستشفى - الوادي',
+      commercialRegister: '39/00-759281B20',
+      providerCategory: 'pharmacy',
+      location: {
+        type: 'Point',
+        coordinates: [6.8790, 33.3750], // Hay Al-Rimal (approx 1.4 km)
+      },
+      isOpen: true,
+      openingHours: '08:00 - 23:00',
+      status: 'active',
+    });
+
+    const pharmacyAlwiam = await User.create({
+      name: 'د. كريم بوزيد',
+      email: 'pharmacy.alwiam@dzly.com',
+      phone: '0663333333',
+      password: 'provider123456',
+      role: 'provider',
+      providerType: 'pharmacy',
+      city: 'الوادي',
+      businessName: 'صيدلية الوفاء والسلام',
+      address: 'طريق المطار، بجوار المحطة - الوادي',
+      commercialRegister: '39/00-918234B21',
+      providerCategory: 'pharmacy',
+      location: {
+        type: 'Point',
+        coordinates: [6.8520, 33.3550], // Airport Road (approx 2.3 km)
+      },
+      isOpen: true,
+      openingHours: '08:30 - 22:30',
+      status: 'active',
+    });
+
+    console.log('Users seeded (Admin, Active Provider, Expired Provider, Client, 3 Pharmacies).');
 
     // 3. Seed Subscriptions
     // Active subscription for activeProvider (1 year from now)
@@ -528,7 +624,22 @@ const seedDB = async () => {
       paymentReference: 'CCP-2026-112233',
       notes: 'اشتراك شهري منتهي الصلاحية لاختبار حماية المزود',
     });
-    console.log('Subscriptions seeded.');
+
+    // Active subscriptions for the 3 pharmacies
+    for (const p of [pharmacyAlshifa, pharmacyAlnoor, pharmacyAlwiam]) {
+      await Subscription.create({
+        provider: p._id,
+        plan: 'annual',
+        startDate: subStartDate,
+        endDate: subEndDate,
+        amountPaid: 50000,
+        status: 'active',
+        paymentMethod: 'baridimob',
+        paymentReference: `BM-PHARM-${p._id.toString().slice(-4)}`,
+        notes: `اشتراك سنوي نشط لصيدلية ${p.businessName}`,
+      });
+    }
+    console.log('Subscriptions seeded (including 3 active pharmacies).');
 
     // 4. Seed Categories
     await Category.insertMany(categoriesData);
@@ -816,13 +927,369 @@ const seedDB = async () => {
     ]);
     console.log('Favorites seeded.');
 
+    // 9. Seed Medicines (15 distinct medicines across 3 pharmacies for comparison)
+    const medicinesData = [
+      // Doliprane in all 3 pharmacies (price & distance comparison)
+      {
+        pharmacy: pharmacyAlshifa._id,
+        name: 'Doliprane 1000mg',
+        genericName: 'Paracetamol',
+        category: 'مسكنات وخافضات حرارة',
+        dosage: 'علبة 8 أقراص فوارة',
+        price: 220,
+        stock: 35,
+        requiresPrescription: false,
+        image: 'assets/images/categories/pharmacy.png',
+        description: 'مسكن للآلام وخافض للحرارة فعال للصداع وآلام الجسم',
+      },
+      {
+        pharmacy: pharmacyAlnoor._id,
+        name: 'Doliprane 1000mg',
+        genericName: 'Paracetamol',
+        category: 'مسكنات وخافضات حرارة',
+        dosage: 'علبة 8 أقراص فوارة',
+        price: 205, // Cheapest
+        stock: 20,
+        requiresPrescription: false,
+        image: 'assets/images/categories/pharmacy.png',
+        description: 'مسكن للآلام وخافض للحرارة فعال للصداع وآلام الجسم',
+      },
+      {
+        pharmacy: pharmacyAlwiam._id,
+        name: 'Doliprane 1000mg',
+        genericName: 'Paracetamol',
+        category: 'مسكنات وخافضات حرارة',
+        dosage: 'علبة 8 أقراص فوارة',
+        price: 215,
+        stock: 18,
+        requiresPrescription: false,
+        image: 'assets/images/categories/pharmacy.png',
+        description: 'مسكن للآلام وخافض للحرارة فعال للصداع وآلام الجسم',
+      },
+
+      // Panadol Extra
+      {
+        pharmacy: pharmacyAlshifa._id,
+        name: 'Panadol Extra 500mg',
+        genericName: 'Paracetamol + Caffeine',
+        category: 'مسكنات وخافضات حرارة',
+        dosage: 'علبة 24 قرص',
+        price: 280,
+        stock: 15,
+        requiresPrescription: false,
+        description: 'مسكن قوي وفعال للصداع النصفي وآلام الأسنان',
+      },
+      {
+        pharmacy: pharmacyAlnoor._id,
+        name: 'Panadol Extra 500mg',
+        genericName: 'Paracetamol + Caffeine',
+        category: 'مسكنات وخافضات حرارة',
+        dosage: 'علبة 24 قرص',
+        price: 260,
+        stock: 12,
+        requiresPrescription: false,
+        description: 'مسكن قوي وفعال للصداع النصفي وآلام الأسنان',
+      },
+
+      // Augmentin (Antibiotic - Requires Prescription)
+      {
+        pharmacy: pharmacyAlshifa._id,
+        name: 'Augmentin 1g',
+        genericName: 'Amoxicilline + Acide Clavulanique',
+        category: 'مضادات حيوية',
+        dosage: 'علبة 14 قرص مغلف',
+        price: 950,
+        stock: 18,
+        requiresPrescription: true,
+        description: 'مضاد حيوي واسع المجال لعلاج التهابات الجهاز التنفسي والمسالك',
+      },
+      {
+        pharmacy: pharmacyAlnoor._id,
+        name: 'Augmentin 1g',
+        genericName: 'Amoxicilline + Acide Clavulanique',
+        category: 'مضادات حيوية',
+        dosage: 'علبة 14 قرص مغلف',
+        price: 920,
+        stock: 10,
+        requiresPrescription: true,
+        description: 'مضاد حيوي واسع المجال لعلاج التهابات الجهاز التنفسي والمسالك',
+      },
+
+      // Amoxicilline Biocare 500mg (Antibiotic - Requires Prescription)
+      {
+        pharmacy: pharmacyAlshifa._id,
+        name: 'Amoxicilline Biocare 500mg',
+        genericName: 'Amoxicilline',
+        category: 'مضادات حيوية',
+        dosage: 'علبة 12 كبسولة',
+        price: 380,
+        stock: 25,
+        requiresPrescription: true,
+        description: 'مضاد حيوي لعلاج الالتهابات البكتيرية الشائعة',
+      },
+      {
+        pharmacy: pharmacyAlwiam._id,
+        name: 'Amoxicilline Biocare 500mg',
+        genericName: 'Amoxicilline',
+        category: 'مضادات حيوية',
+        dosage: 'علبة 12 كبسولة',
+        price: 360,
+        stock: 14,
+        requiresPrescription: true,
+        description: 'مضاد حيوي لعلاج الالتهابات البكتيرية الشائعة',
+      },
+
+      // Vitamine C 1000mg
+      {
+        pharmacy: pharmacyAlshifa._id,
+        name: 'Vitamine C 1000mg Upsa',
+        genericName: 'Acide Ascorbique',
+        category: 'فيتامينات ومكملات',
+        dosage: 'أنبوب 10 أقراص فوارة',
+        price: 450,
+        stock: 22,
+        requiresPrescription: false,
+        description: 'فيتامين سي لتقوية المناعة ومكافحة التعب والإرهاق ونزلات البرد',
+      },
+      {
+        pharmacy: pharmacyAlnoor._id,
+        name: 'Vitamine C 1000mg Upsa',
+        genericName: 'Acide Ascorbique',
+        category: 'فيتامينات ومكملات',
+        dosage: 'أنبوب 10 أقراص فوارة',
+        price: 420,
+        stock: 30,
+        requiresPrescription: false,
+        description: 'فيتامين سي لتقوية المناعة ومكافحة التعب والإرهاق ونزلات البرد',
+      },
+
+      // Maxilase Sirop (Sore throat)
+      {
+        pharmacy: pharmacyAlshifa._id,
+        name: 'Maxilase Sirop 100ml',
+        genericName: 'Alpha-amylase',
+        category: 'مسكنات وخافضات حرارة',
+        dosage: 'قارورة شراب 100 مل',
+        price: 320,
+        stock: 16,
+        requiresPrescription: false,
+        description: 'مضاد للالتهاب ومسكن لآلام الحلق واللوزتين',
+      },
+
+      // Spasfon (Antispasmodic)
+      {
+        pharmacy: pharmacyAlshifa._id,
+        name: 'Spasfon 80mg',
+        genericName: 'Phloroglucinol',
+        category: 'مسكنات وخافضات حرارة',
+        dosage: 'علبة 30 قرص',
+        price: 340,
+        stock: 28,
+        requiresPrescription: false,
+        description: 'علاج تقلصات وآلام المعدة والقولون والمغص الكلوي',
+      },
+      {
+        pharmacy: pharmacyAlwiam._id,
+        name: 'Spasfon 80mg',
+        genericName: 'Phloroglucinol',
+        category: 'مسكنات وخافضات حرارة',
+        dosage: 'علبة 30 قرص',
+        price: 330,
+        stock: 19,
+        requiresPrescription: false,
+        description: 'علاج تقلصات وآلام المعدة والقولون والمغص الكلوي',
+      },
+
+      // Ibuprofène 400mg
+      {
+        pharmacy: pharmacyAlnoor._id,
+        name: 'Ibuprofène 400mg Saidal',
+        genericName: 'Ibuprofen',
+        category: 'مسكنات وخافضات حرارة',
+        dosage: 'علبة 20 قرص',
+        price: 240,
+        stock: 25,
+        requiresPrescription: false,
+        description: 'مضاد للالتهاب ومسكن لآلام المفاصل والأسنان',
+      },
+
+      // Smecta (Digestive)
+      {
+        pharmacy: pharmacyAlshifa._id,
+        name: 'Smecta 3g',
+        genericName: 'Diosmectite',
+        category: 'أخرى',
+        dosage: 'علبة 30 كيس بودرة',
+        price: 390,
+        stock: 20,
+        requiresPrescription: false,
+        description: 'حماية وتلطيف الغشاء المخاطي للمعدة والأمعاء وعلاج الإسهال',
+      },
+
+      // Cétirizine 10mg (Anti-allergy)
+      {
+        pharmacy: pharmacyAlwiam._id,
+        name: 'Cétirizine 10mg Saidal',
+        genericName: 'Cetirizine',
+        category: 'أمراض مزمنة',
+        dosage: 'علبة 20 قرص',
+        price: 280,
+        stock: 12,
+        requiresPrescription: false,
+        description: 'مضاد للحساسية والرشح وحكة العيون والجلد',
+      },
+
+      // Gaviscon Sirop
+      {
+        pharmacy: pharmacyAlshifa._id,
+        name: 'Gaviscon Sirop 250ml',
+        genericName: 'Alginate de sodium',
+        category: 'أخرى',
+        dosage: 'قارورة سائلة 250 مل',
+        price: 580,
+        stock: 15,
+        requiresPrescription: false,
+        description: 'علاج حرقة المعدة وارتجاع المريء وحموضة المعدة',
+      },
+
+      // Bétadine Dermique
+      {
+        pharmacy: pharmacyAlwiam._id,
+        name: 'Bétadine Dermique 10%',
+        genericName: 'Povidone iodée',
+        category: 'عناية جلدية ومستحضرات',
+        dosage: 'قارورة 125 مل',
+        price: 300,
+        stock: 15,
+        requiresPrescription: false,
+        description: 'مطهر جلدي واسع المدى للجروح والخدوش والحروق السطحية',
+      },
+
+      // Physiol Sérum
+      {
+        pharmacy: pharmacyAlnoor._id,
+        name: 'Physiol Sérum 40 dosettes',
+        genericName: 'Chlorure de sodium 0.9%',
+        category: 'أطفال ورضع',
+        dosage: 'علبة 40 جرعة 5 مل',
+        price: 400,
+        stock: 22,
+        requiresPrescription: false,
+        description: 'محلول ملحي معقم لتنظيف الأنف والعيون للرضع والأطفال',
+      },
+
+      // Paracétamol Sirop Enfants
+      {
+        pharmacy: pharmacyAlwiam._id,
+        name: 'Paracétamol Sirop Enfants 100ml',
+        genericName: 'Paracetamol',
+        category: 'أطفال ورضع',
+        dosage: 'قارورة شراب 100 مل مع ملعقة قياس',
+        price: 170,
+        stock: 20,
+        requiresPrescription: false,
+        description: 'خافض حرارة ومسكن للآلام مخصص للأطفال والرضع',
+      },
+
+      // Aspegic 100mg Nourrissons (Low stock example: 4 units!)
+      {
+        pharmacy: pharmacyAlshifa._id,
+        name: 'Aspegic 100mg Nourrissons',
+        genericName: 'Acétylsalicylate de lysine',
+        category: 'أطفال ورضع',
+        dosage: 'علبة 20 كيس بودرة',
+        price: 220,
+        stock: 4, // Low stock demo!
+        requiresPrescription: false,
+        description: 'خافض حرارة ومسكن مخصص للرضع بحذر وفق الجرعات الطبية',
+      },
+    ];
+
+    const createdMedicines = await Medicine.insertMany(medicinesData);
+    console.log(`Seeded ${createdMedicines.length} medicines across 3 pharmacies.`);
+
+    // 10. Seed Demo Pharmacy Orders
+    const dolipraneAlshifa = createdMedicines.find(
+      (m) => m.name === 'Doliprane 1000mg' && m.pharmacy.toString() === pharmacyAlshifa._id.toString()
+    );
+    const vitCAlshifa = createdMedicines.find(
+      (m) => m.name.includes('Vitamine C') && m.pharmacy.toString() === pharmacyAlshifa._id.toString()
+    );
+
+    await PharmacyOrder.create([
+      {
+        orderCode: 'PH-4821',
+        client: client._id,
+        pharmacy: pharmacyAlshifa._id,
+        pharmacyName: pharmacyAlshifa.businessName,
+        pharmacyPhone: pharmacyAlshifa.phone,
+        pharmacyAddress: pharmacyAlshifa.address,
+        items: [
+          {
+            medicine: dolipraneAlshifa._id,
+            name: dolipraneAlshifa.name,
+            dosage: dolipraneAlshifa.dosage,
+            quantity: 2,
+            unitPrice: dolipraneAlshifa.price,
+            subtotal: dolipraneAlshifa.price * 2,
+          },
+          {
+            medicine: vitCAlshifa._id,
+            name: vitCAlshifa.name,
+            dosage: vitCAlshifa.dosage,
+            quantity: 1,
+            unitPrice: vitCAlshifa.price,
+            subtotal: vitCAlshifa.price,
+          },
+        ],
+        deliveryType: 'pickup',
+        customerName: client.name,
+        customerPhone: client.phone,
+        customerNotes: 'سأمر للاستلام خلال ساعتين إن شاء الله',
+        totalPrice: dolipraneAlshifa.price * 2 + vitCAlshifa.price,
+        platformCommissionRate: 5,
+        status: 'accepted',
+      },
+      {
+        orderCode: 'PH-7193',
+        client: client._id,
+        pharmacy: pharmacyAlnoor._id,
+        pharmacyName: pharmacyAlnoor.businessName,
+        pharmacyPhone: pharmacyAlnoor.phone,
+        pharmacyAddress: pharmacyAlnoor.address,
+        items: [
+          {
+            medicine: createdMedicines.find((m) => m.name === 'Augmentin 1g')._id,
+            name: 'Augmentin 1g',
+            dosage: 'علبة 14 قرص مغلف',
+            quantity: 1,
+            unitPrice: 920,
+            subtotal: 920,
+          },
+        ],
+        deliveryType: 'delivery',
+        deliveryAddress: 'حي 19 مارس، عمارة 4، الوادي',
+        prescriptionImage: 'assets/images/categories/pharmacy.png',
+        customerName: client.name,
+        customerPhone: client.phone,
+        customerNotes: 'يرجى التأكد من الوصفة المرفقة والتوصيل للعنوان',
+        totalPrice: 920,
+        platformCommissionRate: 5,
+        status: 'pending',
+      },
+    ]);
+    console.log('Pharmacy orders seeded.');
+
     console.log('====================================================');
     console.log('Database Seeding Completed Successfully! 🚀');
     console.log('Ready-to-use Accounts:');
     console.log('1. Admin: admin@dzly.com / admin123456');
-    console.log('2. Active Provider: provider.active@dzly.com / provider123456');
-    console.log('3. Expired Provider: provider.expired@dzly.com / provider123456');
-    console.log('4. Client: client@dzly.com / client123456');
+    console.log('2. Active General Provider: provider.active@dzly.com / provider123456');
+    console.log('3. Pharmacy Provider (Al-Shifa): pharmacy.alshifa@dzly.com / provider123456');
+    console.log('4. Pharmacy Provider (Al-Noor): pharmacy.alnoor@dzly.com / provider123456');
+    console.log('5. Pharmacy Provider (Al-Wafa): pharmacy.alwiam@dzly.com / provider123456');
+    console.log('6. Expired Provider: provider.expired@dzly.com / provider123456');
+    console.log('7. Client: client@dzly.com / client123456');
     console.log('====================================================');
 
     process.exit(0);

@@ -8,18 +8,30 @@ import {
   CreditCard,
   LogOut,
   Building,
+  Pill,
+  ShoppingBag,
 } from 'lucide-react';
 
-const menuItems = [
-  { id: 'overview', label: 'لوحة المؤشرات والملخص', icon: LayoutDashboard },
-  { id: 'bookings', label: 'طلبات الحجز الواردة', icon: CalendarCheck },
-  { id: 'services', label: 'خدماتي وعروضي', icon: Briefcase },
-  { id: 'financials', label: 'المستحقات المالية والأرباح', icon: Wallet },
-  { id: 'reports', label: 'التقارير وتصدير البيانات', icon: FileSpreadsheet },
-  { id: 'subscription', label: 'حالة الاشتراك والتجديد', icon: CreditCard },
-];
-
 export default function Sidebar({ activeTab, setActiveTab, onLogout, user }) {
+  const isPharmacy = user?.providerType === 'pharmacy' || user?.providerCategory === 'pharmacy';
+
+  const menuItems = isPharmacy
+    ? [
+        { id: 'overview', label: 'لوحة المؤشرات والملخص', icon: LayoutDashboard },
+        { id: 'pharmacy_orders', label: 'طلبات الأدوية والروشتات 💊', icon: ShoppingBag },
+        { id: 'pharmacy_inventory', label: 'مخزون الأدوية والأسعار', icon: Pill },
+        { id: 'financials', label: 'المستحقات المالية والأرباح', icon: Wallet },
+        { id: 'reports', label: 'التقارير وتصدير البيانات', icon: FileSpreadsheet },
+        { id: 'subscription', label: 'حالة الاشتراك والتجديد', icon: CreditCard },
+      ]
+    : [
+        { id: 'overview', label: 'لوحة المؤشرات والملخص', icon: LayoutDashboard },
+        { id: 'bookings', label: 'طلبات الحجز الواردة', icon: CalendarCheck },
+        { id: 'services', label: 'خدماتي وعروضي', icon: Briefcase },
+        { id: 'financials', label: 'المستحقات المالية والأرباح', icon: Wallet },
+        { id: 'reports', label: 'التقارير وتصدير البيانات', icon: FileSpreadsheet },
+        { id: 'subscription', label: 'حالة الاشتراك والتجديد', icon: CreditCard },
+      ];
   return (
     <aside className="w-64 bg-slate-900 text-white min-h-screen flex flex-col justify-between shrink-0 border-l border-slate-800 select-none no-print">
       <div>
@@ -40,12 +52,18 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout, user }) {
 
           {/* Business Name Badge */}
           <div className="mt-4 p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center gap-2">
-            <Building className="w-4 h-4 text-amber-400 shrink-0" />
+            {isPharmacy ? (
+              <Pill className="w-4 h-4 text-teal-400 shrink-0" />
+            ) : (
+              <Building className="w-4 h-4 text-amber-400 shrink-0" />
+            )}
             <div className="overflow-hidden">
               <p className="text-xs font-bold text-slate-200 truncate">
                 {user?.businessName || user?.name || 'مؤسستي'}
               </p>
-              <p className="text-[10px] text-slate-400">ولاية {user?.city || 'الوادي'}</p>
+              <p className="text-[10px] text-slate-400">
+                {isPharmacy ? 'صيدلية معتمدة 💊' : `ولاية ${user?.city || 'الوادي'}`}
+              </p>
             </div>
           </div>
         </div>

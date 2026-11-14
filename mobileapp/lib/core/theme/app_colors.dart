@@ -9,13 +9,14 @@ class AppColors {
   static const Color textDark = Color(0xFF1E293B);
   static const Color textGrey = Color(0xFF64748B);
 
-  // Category Specific Colors
-  static const Color carsBlue = Color(0xFF0077CC);
-  static const Color beautyPink = Color(0xFFD81B60);
-  static const Color farmsGreen = Color(0xFF2E7D32);
+  // Exact Category Colors Matching the Reference Design Specification
   static const Color weddingsRed = Color(0xFFC62828);
-  static const Color poolsCyan = Color(0xFF0288D1);
-  static const Color hotelsBlue = Color(0xFF1565C0);
-  static const Color farmsHallsPurple = Color(0xFF5E35B1);
+  static const Color farmsGreen = Color(0xFF2E7D32);
+  static const Color beautyPink = Color(0xFFD81B60);
+  static const Color carsBlue = Color(0xFF0077CC);
   static const Color housesTeal = Color(0xFF00695C);
+  static const Color farmsHallsPurple = Color(0xFF5E35B1);
+  static const Color hotelsBlue = Color(0xFF1565C0);
+  static const Color poolsCyan = Color(0xFF0288D1);
+  static const Color pharmacyTeal = Color(0xFF0D9488);
 }

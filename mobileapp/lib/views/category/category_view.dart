@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/favorites_controller.dart';
 import '../../controllers/home_controller.dart';
+import '../../core/config/api_config.dart';
+import '../../models/category_model.dart';
 import '../../models/service_model.dart';
 import '../booking/booking_view.dart';
 import '../service_details/service_details_view.dart';
@@ -32,6 +34,16 @@ class _CategoryViewState extends State<CategoryView> {
   Widget build(BuildContext context) {
     final homeCtrl = context.watch<HomeController>();
     final favCtrl = context.watch<FavoritesController>();
+
+    CategoryModel? currentCat;
+    if (widget.categoryId != null) {
+      for (final c in homeCtrl.categories) {
+        if (c.id == widget.categoryId) {
+          currentCat = c;
+          break;
+        }
+      }
+    }
 
     var services = widget.categoryId != null
         ? homeCtrl.getServicesByCategory(widget.categoryId!)
@@ -144,6 +156,12 @@ class _CategoryViewState extends State<CategoryView> {
             ),
           ),
 
+          // بنر إعلاني وترويجي خاص بالقسم (يمكن تغييره من لوحة تحكم الإدارة مع اعتماد صور الأصول كاحتياطي)
+          if (currentCat != null)
+            SliverToBoxAdapter(
+              child: _buildCategoryAdBanner(currentCat),
+            ),
+
           // شرائح الفلترة السريعة
           SliverToBoxAdapter(
             child: Padding(
@@ -200,6 +218,138 @@ class _CategoryViewState extends State<CategoryView> {
                   ),
                 ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryAdBanner(CategoryModel cat) {
+    final bannerImg = cat.adBannerUrl.isNotEmpty
+        ? NetworkImage(ApiConfig.resolveUrl(cat.adBannerUrl)) as ImageProvider
+        : AssetImage(cat.imageAsset);
+
+    final title = cat.adBannerTitle.isNotEmpty
+        ? cat.adBannerTitle
+        : 'أقوى عروض ${cat.title} في الجزائر';
+
+    final subtitle = cat.adBannerSubtitle.isNotEmpty
+        ? cat.adBannerSubtitle
+        : 'احجز خدمات موثوقة ومضمونة بأفضل الأسعار وبدون عمولات إضافية';
+
+    final actionText = cat.adBannerActionText.isNotEmpty
+        ? cat.adBannerActionText
+        : 'استكشف العروض';
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      height: 120,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        image: DecorationImage(
+          image: bannerImg,
+          fit: BoxFit.cover,
+          onError: (_, __) {},
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: widget.themeColor.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            begin: Alignment.centerRight,
+            end: Alignment.centerLeft,
+            colors: [
+              Colors.black.withOpacity(0.85),
+              widget.themeColor.withOpacity(0.75),
+              Colors.transparent,
+            ],
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.shade700,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'إعلان / مميز',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 11,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 28,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: widget.themeColor,
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 1,
+                      ),
+                      onPressed: () {
+                        setState(() => _activeFilter = 'offers');
+                      },
+                      child: Text(
+                        actionText,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

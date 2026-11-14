@@ -9,11 +9,15 @@ import {
   Settings,
   LogOut,
   Building2,
+  Pill,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 const menuItems = [
   { id: 'analytics', label: 'لوحة المؤشرات والتحليلات', icon: LayoutDashboard },
+  { id: 'banners', label: 'إدارة البنرات وصور التطبيق 🎨', icon: ImageIcon },
   { id: 'bookings', label: 'إدارة الحجوزات والطلبات', icon: CalendarCheck },
+  { id: 'pharmacy', label: 'الصيدليات وطلب الأدوية 💊', icon: Pill },
   { id: 'services', label: 'إدارة الخدمات والاعتماد', icon: Briefcase },
   { id: 'categories', label: 'الأقسام والحقول الديناميكية', icon: Layers },
   { id: 'providers', label: 'مزودي الخدمات والاشتراكات', icon: CreditCard },

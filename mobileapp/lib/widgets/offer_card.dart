@@ -31,6 +31,7 @@ class OfferCard extends StatelessWidget {
           ],
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // صورة العرض مع شارة "خصم خاص" أو "عرض"
@@ -40,20 +41,20 @@ class OfferCard extends StatelessWidget {
                 children: [
                   Image.asset(
                     service.imageAsset,
-                    height: 105,
+                    height: 94,
                     width: double.infinity,
                     fit: BoxFit.cover,
                   ),
                   Positioned(
-                    top: 8,
-                    right: 8,
+                    top: 6,
+                    right: 6,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
                         color: service.badgeLabel == 'خصم خاص'
                             ? const Color(0xFFE53935)
                             : service.accentColor,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(8),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.15),
@@ -65,7 +66,7 @@ class OfferCard extends StatelessWidget {
                         service.badgeLabel,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 10,
+                          fontSize: 9.5,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -77,8 +78,9 @@ class OfferCard extends StatelessWidget {
 
             // تفاصيل العرض
             Padding(
-              padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+              padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     service.title,
@@ -87,11 +89,11 @@ class OfferCard extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 12.5,
+                      fontSize: 12,
                       color: AppColors.textDark,
                     ),
                   ),
-                  const SizedBox(height: 3),
+                  const SizedBox(height: 2),
                   Text(
                     service.subtitle,
                     maxLines: 1,
@@ -99,13 +101,13 @@ class OfferCard extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: AppColors.textGrey,
-                      fontSize: 10,
+                      fontSize: 9.5,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   // كبسولة نسبة الخصم بالألوان المتناسقة
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 3.5),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
                     decoration: BoxDecoration(
                       color: service.accentColor,
                       borderRadius: BorderRadius.circular(12),
@@ -115,7 +117,7 @@ class OfferCard extends StatelessWidget {
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 11.5,
+                        fontSize: 11,
                       ),
                     ),
                   ),

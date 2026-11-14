@@ -10,6 +10,7 @@ exports.getAllCategories = async (req, res, next) => {
       success: true,
       count: categories.length,
       categories,
+      data: categories,
     });
   } catch (error) {
     next(error);

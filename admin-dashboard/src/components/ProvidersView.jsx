@@ -170,7 +170,14 @@ export default function ProvidersView() {
                       <div className="text-xs text-slate-400 font-mono">{sub.provider?.phone}</div>
                     </td>
                     <td className="p-4">
-                      <div className="font-semibold text-slate-800">{sub.provider?.businessName || '—'}</div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-semibold text-slate-800">{sub.provider?.businessName || '—'}</span>
+                        {sub.provider?.providerType === 'pharmacy' && (
+                          <span className="bg-teal-50 text-teal-700 border border-teal-200 text-[10px] px-1.5 py-0.5 rounded font-bold">
+                            صيدلية 💊
+                          </span>
+                        )}
+                      </div>
                       <div className="text-xs text-slate-400">{sub.provider?.city}</div>
                     </td>
                     <td className="p-4 font-bold text-slate-700">
