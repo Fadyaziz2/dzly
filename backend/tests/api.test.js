@@ -1,6 +1,9 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
 const app = require('../server');
+const User = require('../src/models/User');
+const Subscription = require('../src/models/Subscription');
+const Settings = require('../src/models/Settings');
 
 describe('Ihjizli Dz Backend Integration Tests', () => {
   let adminToken;
@@ -25,6 +28,58 @@ describe('Ihjizli Dz Backend Integration Tests', () => {
     // Connect to MongoDB
     if (mongoose.connection.readyState === 0) {
       await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/ihjizli_dz');
+    }
+
+    // 1. Reset Settings for clean idempotence
+    await Settings.findOneAndUpdate(
+      { key: 'global_settings' },
+      { monthlySubscriptionPrice: 5000, platformCommissionPercent: 10 }
+    );
+
+    // 2. Ensure expiredProvider has an expired subscription (not active from prior test runs)
+    const expiredUser = await User.findOne({ email: 'provider.expired@dzly.com' });
+    if (expiredUser) {
+      await Subscription.deleteMany({ provider: expiredUser._id });
+      const pastStart = new Date();
+      pastStart.setDate(pastStart.getDate() - 60);
+      const pastEnd = new Date();
+      pastEnd.setDate(pastEnd.getDate() - 5);
+      await Subscription.create({
+        provider: expiredUser._id,
+        plan: 'monthly',
+        startDate: pastStart,
+        endDate: pastEnd,
+        amountPaid: 5000,
+        status: 'expired',
+        paymentMethod: 'ccp',
+        paymentReference: 'CCP-TEST-RESET',
+        notes: 'اشتراك شهري منتهي الصلاحية لاختبار حماية المزود',
+      });
+    }
+
+    // 3. Ensure activeProvider has an active subscription
+    const activeUser = await User.findOne({ email: 'provider.active@dzly.com' });
+    if (activeUser) {
+      const activeSub = await Subscription.findOne({
+        provider: activeUser._id,
+        status: 'active',
+        endDate: { $gt: new Date() },
+      });
+      if (!activeSub) {
+        const subEndDate = new Date();
+        subEndDate.setFullYear(subEndDate.getFullYear() + 1);
+        await Subscription.create({
+          provider: activeUser._id,
+          plan: 'annual',
+          startDate: new Date(),
+          endDate: subEndDate,
+          amountPaid: 50000,
+          status: 'active',
+          paymentMethod: 'baridimob',
+          paymentReference: 'BM-TEST-ACTIVE',
+          notes: 'اشتراك سنوي ساري المفعول',
+        });
+      }
     }
 
     // Login Admin
@@ -79,6 +134,31 @@ describe('Ihjizli Dz Backend Integration Tests', () => {
   });
 
   afterAll(async () => {
+    try {
+      await Settings.findOneAndUpdate(
+        { key: 'global_settings' },
+        { monthlySubscriptionPrice: 5000, platformCommissionPercent: 10 }
+      );
+      const expiredUser = await User.findOne({ email: 'provider.expired@dzly.com' });
+      if (expiredUser) {
+        await Subscription.deleteMany({ provider: expiredUser._id });
+        const pastStart = new Date();
+        pastStart.setDate(pastStart.getDate() - 60);
+        const pastEnd = new Date();
+        pastEnd.setDate(pastEnd.getDate() - 5);
+        await Subscription.create({
+          provider: expiredUser._id,
+          plan: 'monthly',
+          startDate: pastStart,
+          endDate: pastEnd,
+          amountPaid: 5000,
+          status: 'expired',
+          paymentMethod: 'ccp',
+          paymentReference: 'CCP-TEST-RESET',
+          notes: 'اشتراك شهري منتهي الصلاحية لاختبار حماية المزود',
+        });
+      }
+    } catch (_) {}
     await mongoose.connection.close();
   });
 
