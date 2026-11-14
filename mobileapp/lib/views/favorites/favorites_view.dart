@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../controllers/favorites_controller.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/navigation_controller.dart';
+import '../../core/config/api_config.dart';
 import '../booking/booking_view.dart';
 import '../service_details/service_details_view.dart';
 
@@ -77,47 +78,65 @@ class FavoritesView extends StatelessWidget {
                 ],
               ),
             )
-          : ListView.builder(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              itemCount: favorites.length,
-              itemBuilder: (context, index) {
-                final srv = favorites[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ServiceDetailsView(service: srv),
+          : RefreshIndicator(
+              onRefresh: () async {
+                await favCtrl.fetchFavorites();
+                await homeCtrl.loadData();
+              },
+              child: ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                padding: const EdgeInsets.all(16),
+                itemCount: favorites.length,
+                itemBuilder: (context, index) {
+                  final srv = favorites[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ServiceDetailsView(service: srv),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
-                    );
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 14),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        ClipRRect(
-                          borderRadius: const BorderRadius.horizontal(
-                            right: Radius.circular(16),
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: const BorderRadius.horizontal(
+                              right: Radius.circular(16),
+                            ),
+                            child: srv.imageUrl.isNotEmpty
+                                ? Image.network(
+                                    ApiConfig.resolveUrl(srv.imageUrl),
+                                    width: 105,
+                                    height: 105,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Image.asset(
+                                      srv.imageAsset,
+                                      width: 105,
+                                      height: 105,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : Image.asset(
+                                    srv.imageAsset,
+                                    width: 105,
+                                    height: 105,
+                                    fit: BoxFit.cover,
+                                  ),
                           ),
-                          child: Image.asset(
-                            srv.imageAsset,
-                            width: 105,
-                            height: 105,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.all(12),
@@ -204,6 +223,7 @@ class FavoritesView extends StatelessWidget {
                 );
               },
             ),
+          ),
     );
   }
 }

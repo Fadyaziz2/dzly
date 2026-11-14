@@ -17,6 +17,8 @@ class ServiceModel {
   final int reviewsCount;
   final Color accentColor;
   final String imageAsset;
+  final String imageUrl;
+  final List<String> images;
   final List<String> features;
 
   const ServiceModel({
@@ -34,6 +36,8 @@ class ServiceModel {
     required this.reviewsCount,
     required this.accentColor,
     required this.imageAsset,
+    this.imageUrl = '',
+    this.images = const [],
     required this.features,
   });
 
@@ -47,6 +51,12 @@ class ServiceModel {
     final r = (json['rating'] is num) ? (json['rating'] as num).toDouble() : 5.0;
     final rev = (json['reviewsCount'] is num) ? (json['reviewsCount'] as num).toInt() : 0;
     final d = (json['discountPercent'] is num) ? (json['discountPercent'] as num).toInt() : 0;
+
+    final imgs = (json['images'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+    String imgUrl = json['imageUrl'] ?? '';
+    if (imgUrl.isEmpty && imgs.isNotEmpty) {
+      imgUrl = imgs.first;
+    }
 
     return ServiceModel(
       id: id,
@@ -63,6 +73,8 @@ class ServiceModel {
       reviewsCount: rev,
       accentColor: _parseColor(json['accentColor'], catId),
       imageAsset: _resolveAsset(catId, json['imageAsset']),
+      imageUrl: imgUrl,
+      images: imgs,
       features: (json['features'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
     );
   }

@@ -35,26 +35,30 @@ class NotificationsView extends StatelessWidget {
             ),
         ],
       ),
-      body: notifCtrl.notifications.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.notifications_off_outlined, size: 72, color: Colors.grey.shade300),
-                  const SizedBox(height: 14),
-                  const Text(
-                    'لا توجد إشعارات جديدة حالياً',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF64748B),
+      body: RefreshIndicator(
+        onRefresh: () => notifCtrl.fetchNotifications(),
+        child: notifCtrl.notifications.isEmpty
+            ? Center(
+                child: ListView(
+                  shrinkWrap: true,
+                  physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                  children: [
+                    Icon(Icons.notifications_off_outlined, size: 72, color: Colors.grey.shade300),
+                    const SizedBox(height: 14),
+                    const Text(
+                      'لا توجد إشعارات جديدة حالياً',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF64748B),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            )
-          : ListView.builder(
-              physics: const BouncingScrollPhysics(),
+                  ],
+                ),
+              )
+            : ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
               padding: const EdgeInsets.all(16),
               itemCount: notifCtrl.notifications.length,
               itemBuilder: (context, index) {
@@ -152,6 +156,7 @@ class NotificationsView extends StatelessWidget {
                 );
               },
             ),
+      ),
     );
   }
 }

@@ -59,11 +59,14 @@ class HomeView extends StatelessWidget {
     final navCtrl = context.read<NavigationController>();
     final unreadCount = context.watch<NotificationsController>().unreadCount;
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return RefreshIndicator(
+      onRefresh: () => homeCtrl.loadData(),
+      color: AppColors.primaryBlue,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           // 1. الهيدر العلوي المتطابق بالكامل مع التصميم المرجعي
           Stack(
             children: [
@@ -330,6 +333,46 @@ class HomeView extends StatelessWidget {
               ),
             ],
           ),
+
+          // شريط تنبيه وضع عدم الاتصال (يظهر حصراً في حالة عدم وجود اتصال أو تعذر الوصول للسيرفر)
+          if (homeCtrl.isOffline)
+            Container(
+              margin: const EdgeInsets.fromLTRB(14, 10, 14, 2),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF3C7),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.5)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.wifi_off_rounded, color: Color(0xFFD97706), size: 18),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'أنت في وضع عدم الاتصال — يتم عرض بيانات محلية مؤقتة',
+                      style: TextStyle(
+                        color: Color(0xFF92400E),
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => homeCtrl.loadData(),
+                    child: const Text(
+                      'تحديث',
+                      style: TextStyle(
+                        color: AppColors.primaryBlue,
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
           const SizedBox(height: 12),
 
@@ -703,8 +746,9 @@ class HomeView extends StatelessWidget {
           const SizedBox(height: 24),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildQuickChip({
     required String title,

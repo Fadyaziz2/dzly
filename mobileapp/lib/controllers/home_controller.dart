@@ -187,8 +187,9 @@ class HomeController extends ChangeNotifier {
     ),
   ];
 
-  List<CategoryModel> _categories = _defaultCategories;
-  List<ServiceModel> _allServices = _fallbackServices;
+  List<CategoryModel> _categories = [];
+  List<ServiceModel> _allServices = [];
+  bool _isOffline = false;
 
   // Dynamic Banners
   String _headerBannerUrl = '';
@@ -206,6 +207,7 @@ class HomeController extends ChangeNotifier {
   String get searchQuery => _searchQuery;
   String? get selectedQuickFilterId => _selectedQuickFilterId;
   bool get isLoading => _isLoading;
+  bool get isOffline => _isOffline;
 
   String get headerBannerUrl => _headerBannerUrl;
   String get homeAdBannerUrl => _homeAdBannerUrl;
@@ -258,6 +260,8 @@ class HomeController extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
+    bool hasNetworkError = false;
+
     // 1. Fetch Dynamic Banners & Global Settings
     try {
       final setRes = await _api.get(ApiConfig.settings);
@@ -277,12 +281,14 @@ class HomeController extends ChangeNotifier {
           }
           _homeAdBannerActionUrl = d['homeAdBannerActionUrl'] ?? '';
         }
+      } else {
+        hasNetworkError = true;
       }
     } catch (_) {
-      // Keep defaults
+      hasNetworkError = true;
     }
 
-    // 2. Fetch Categories (with dynamic imageUrl and category ad banners)
+    // 2. Fetch Categories (Live from database)
     try {
       final res = await _api.get(ApiConfig.categories);
       if (res['success'] == true) {
@@ -291,16 +297,16 @@ class HomeController extends ChangeNotifier {
           final list = rawList
               .map((e) => CategoryModel.fromJson(e as Map<String, dynamic>))
               .toList();
-          if (list.isNotEmpty) {
-            _categories = list;
-          }
+          _categories = list;
         }
+      } else {
+        hasNetworkError = true;
       }
     } catch (_) {
-      // Fallback already assigned
+      hasNetworkError = true;
     }
 
-    // 3. Fetch Services
+    // 3. Fetch Services (Live from database)
     try {
       final srvRes = await _api.get(ApiConfig.services);
       if (srvRes['success'] == true) {
@@ -309,13 +315,25 @@ class HomeController extends ChangeNotifier {
           final list = rawList
               .map((e) => ServiceModel.fromJson(e as Map<String, dynamic>))
               .toList();
-          if (list.isNotEmpty) {
-            _allServices = list;
-          }
+          _allServices = list;
         }
+      } else {
+        hasNetworkError = true;
       }
     } catch (_) {
-      // Fallback already assigned
+      hasNetworkError = true;
+    }
+
+    _isOffline = hasNetworkError;
+
+    // Temporary/Fallback Data is ONLY shown when there is no connection (offline mode)
+    if (_isOffline) {
+      if (_categories.isEmpty) {
+        _categories = List.from(_defaultCategories);
+      }
+      if (_allServices.isEmpty) {
+        _allServices = List.from(_fallbackServices);
+      }
     }
 
     _isLoading = false;

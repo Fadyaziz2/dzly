@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../controllers/home_controller.dart';
 import '../../controllers/navigation_controller.dart';
 import '../../controllers/notifications_controller.dart';
 import '../home/home_view.dart';
@@ -49,7 +50,12 @@ class MainNavigationView extends StatelessWidget {
               icon: Icons.home_rounded,
               label: 'الرئيسية',
               isSelected: navCtrl.currentIndex == 0,
-              onTap: () => navCtrl.setIndex(0),
+              onTap: () {
+                if (navCtrl.currentIndex == 0) {
+                  context.read<HomeController>().loadData();
+                }
+                navCtrl.setIndex(0);
+              },
             ),
             _buildNavItem(
               index: 1,

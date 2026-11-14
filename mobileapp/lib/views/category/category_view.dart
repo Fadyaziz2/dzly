@@ -74,11 +74,14 @@ class _CategoryViewState extends State<CategoryView> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          // AppBar علوي عصري مع تدرج لوني وبحث
-          SliverAppBar(
+      body: RefreshIndicator(
+        onRefresh: () => homeCtrl.loadData(),
+        color: widget.themeColor,
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+          slivers: [
+            // AppBar علوي عصري مع تدرج لوني وبحث
+            SliverAppBar(
             expandedHeight: 140,
             pinned: true,
             backgroundColor: widget.themeColor,
@@ -156,6 +159,48 @@ class _CategoryViewState extends State<CategoryView> {
             ),
           ),
 
+          // شريط تنبيه وضع عدم الاتصال (يظهر فقط في حالة غياب الاتصال بالإنترنت)
+          if (homeCtrl.isOffline)
+            SliverToBoxAdapter(
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.5)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.wifi_off_rounded, color: Color(0xFFD97706), size: 16),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'وضع عدم الاتصال — يتم عرض بيانات محلية مؤقتة',
+                        style: TextStyle(
+                          color: Color(0xFF92400E),
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => homeCtrl.loadData(),
+                      child: Text(
+                        'تحديث',
+                        style: TextStyle(
+                          color: widget.themeColor,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
           // بنر إعلاني وترويجي خاص بالقسم (يمكن تغييره من لوحة تحكم الإدارة مع اعتماد صور الأصول كاحتياطي)
           if (currentCat != null)
             SliverToBoxAdapter(
@@ -219,8 +264,9 @@ class _CategoryViewState extends State<CategoryView> {
                 ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildCategoryAdBanner(CategoryModel cat) {
     final bannerImg = cat.adBannerUrl.isNotEmpty
@@ -423,12 +469,25 @@ class _CategoryViewState extends State<CategoryView> {
               children: [
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-                  child: Image.asset(
-                    srv.imageAsset,
-                    height: 160,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                  child: srv.imageUrl.isNotEmpty
+                      ? Image.network(
+                          ApiConfig.resolveUrl(srv.imageUrl),
+                          height: 160,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Image.asset(
+                            srv.imageAsset,
+                            height: 160,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Image.asset(
+                          srv.imageAsset,
+                          height: 160,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                 ),
                 // شارة الخصم
                 if (srv.discountPercent > 0)

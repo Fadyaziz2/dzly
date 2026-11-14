@@ -12,8 +12,8 @@ class BookingController extends ChangeNotifier {
   List<PharmacyOrderModel> _pharmacyOrders = [];
   List<PharmacyOrderModel> get pharmacyOrders => _pharmacyOrders;
 
-  List<BookingModel> _bookings = [
-    const BookingModel(
+  static const List<BookingModel> _defaultFallbackBookings = [
+    BookingModel(
       id: 'DZ-8492',
       bookingCode: 'DZ-8492',
       serviceTitle: 'قاعة الأفق - الوادي',
@@ -25,7 +25,7 @@ class BookingController extends ChangeNotifier {
       customerPhone: '0661234567',
       status: BookingStatus.confirmed,
     ),
-    const BookingModel(
+    BookingModel(
       id: 'DZ-7310',
       bookingCode: 'DZ-7310',
       serviceTitle: 'مزرعة النخيل',
@@ -39,8 +39,12 @@ class BookingController extends ChangeNotifier {
     ),
   ];
 
+  List<BookingModel> _bookings = [];
   bool _isLoading = false;
+  bool _isOffline = false;
+
   bool get isLoading => _isLoading;
+  bool get isOffline => _isOffline;
   List<BookingModel> get allBookings => _bookings;
 
   BookingController() {
@@ -66,11 +70,10 @@ class BookingController extends ChangeNotifier {
 
     try {
       final response = await _api.get(ApiConfig.myBookings);
-      if (response is Map && response['bookings'] != null) {
-        final List list = response['bookings'];
-        if (list.isNotEmpty) {
-          _bookings = list.map((b) => BookingModel.fromJson(b)).toList();
-        }
+      if (response is Map && (response['bookings'] != null || response['data'] != null)) {
+        final List list = (response['bookings'] ?? response['data']) as List;
+        _bookings = list.map((b) => BookingModel.fromJson(b)).toList();
+        _isOffline = false;
       }
 
       // Also fetch pharmacy orders
@@ -83,7 +86,10 @@ class BookingController extends ChangeNotifier {
         }
       } catch (_) {}
     } catch (_) {
-      // Use fallback initial bookings when offline or guest
+      _isOffline = true;
+      if (_bookings.isEmpty) {
+        _bookings = List.from(_defaultFallbackBookings);
+      }
     } finally {
       _isLoading = false;
       notifyListeners();

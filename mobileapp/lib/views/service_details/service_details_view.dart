@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/favorites_controller.dart';
+import '../../core/config/api_config.dart';
 import '../../models/service_model.dart';
 import '../booking/booking_view.dart';
 
@@ -55,10 +56,19 @@ class ServiceDetailsView extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.asset(
-                    service.imageAsset,
-                    fit: BoxFit.cover,
-                  ),
+                  service.imageUrl.isNotEmpty
+                      ? Image.network(
+                          ApiConfig.resolveUrl(service.imageUrl),
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Image.asset(
+                            service.imageAsset,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Image.asset(
+                          service.imageAsset,
+                          fit: BoxFit.cover,
+                        ),
                   // تدرج لوني لتسهيل قراءة الأزرار
                   Container(
                     decoration: BoxDecoration(

@@ -6,7 +6,7 @@ import '../services/api_service.dart';
 class NotificationsController extends ChangeNotifier {
   final ApiService _api = ApiService();
 
-  List<NotificationModel> _notifications = [
+  static List<NotificationModel> get _defaultFallbackNotifications => [
     NotificationModel(
       id: 'n1',
       title: 'خصم 30% على مزرعة النخيل!',
@@ -24,6 +24,8 @@ class NotificationsController extends ChangeNotifier {
     ),
   ];
 
+  List<NotificationModel> _notifications = [];
+
   NotificationsController() {
     fetchNotifications();
   }
@@ -35,14 +37,17 @@ class NotificationsController extends ChangeNotifier {
   Future<void> fetchNotifications() async {
     try {
       final response = await _api.get(ApiConfig.notifications);
-      if (response['notifications'] != null) {
-        final List list = response['notifications'];
-        if (list.isNotEmpty) {
-          _notifications = list.map((n) => NotificationModel.fromJson(n)).toList();
-          notifyListeners();
-        }
+      if (response != null && (response['notifications'] != null || response['data'] != null)) {
+        final List list = (response['notifications'] ?? response['data']) as List;
+        _notifications = list.map((n) => NotificationModel.fromJson(n)).toList();
+        notifyListeners();
       }
-    } catch (_) {}
+    } catch (_) {
+      if (_notifications.isEmpty) {
+        _notifications = List.from(_defaultFallbackNotifications);
+        notifyListeners();
+      }
+    }
   }
 
   Future<void> markAsRead(String id) async {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/config/api_config.dart';
 import '../core/theme/app_colors.dart';
 import '../models/service_model.dart';
 
@@ -39,12 +40,25 @@ class OfferCard extends StatelessWidget {
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
               child: Stack(
                 children: [
-                  Image.asset(
-                    service.imageAsset,
-                    height: 94,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                  service.imageUrl.isNotEmpty
+                      ? Image.network(
+                          ApiConfig.resolveUrl(service.imageUrl),
+                          height: 94,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Image.asset(
+                            service.imageAsset,
+                            height: 94,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Image.asset(
+                          service.imageAsset,
+                          height: 94,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                   Positioned(
                     top: 6,
                     right: 6,

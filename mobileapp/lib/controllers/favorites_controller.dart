@@ -5,7 +5,7 @@ import '../services/api_service.dart';
 
 class FavoritesController extends ChangeNotifier {
   final ApiService _api = ApiService();
-  final Set<String> _favoriteIds = {'srv_1', 'srv_3'};
+  final Set<String> _favoriteIds = {};
 
   FavoritesController() {
     fetchFavorites();
@@ -17,8 +17,8 @@ class FavoritesController extends ChangeNotifier {
   Future<void> fetchFavorites() async {
     try {
       final response = await _api.get(ApiConfig.favorites);
-      if (response['favoriteIds'] != null) {
-        final List ids = response['favoriteIds'];
+      if (response != null && (response['favoriteIds'] != null || response['data'] != null)) {
+        final List ids = (response['favoriteIds'] ?? response['data']) as List;
         _favoriteIds.clear();
         for (var id in ids) {
           _favoriteIds.add(id.toString());
